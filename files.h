@@ -5,6 +5,7 @@
 
 using std::ofstream;
 using std::ifstream;
+using std::endl;
 
 class files {
 private:
@@ -13,27 +14,27 @@ private:
 	string command;
 	int index;
 	string temp;
-	list<string>* plist;
+	set<string>* pset;
 public:
 	files(const char* inName, const char* outName) {
 		in.open(inName);
 		out.open(outName);
-		plist = new list<string>(4);
+		pset = new set<string>();
 	}
 	~files() {
 		in.close();
 		out.close();
-		delete plist;
+		delete pset;
 	}
 	void init() {
 		while(in >> command) 
 			run(command);
 	}
 	void run(string command) {
-		if(command == "list") {
-			flist();
+		if(command == "clear") {
+			clear();
 		}
-		else if(command == "insert") {
+		else if(command == "add") {
 			insert();
 		}
 		else if(command == "find") {
@@ -46,31 +47,27 @@ public:
 			print();
 		}
 	}
-	void flist() {
-		int capacity;
-		in >> capacity;
-		if(capacity >= 2) {
-			delete plist;
-			plist = new list<string>(capacity);
-		}
-		out << "list " << capacity << endl;
+	void clear() {
+		delete pset;
+		pset = new set<string>();
+		out << "clear" << endl;
 	}
 	void insert() {
-		in >> index;
 		in >> temp;
-		plist->insert(index, temp);
-		out << "insert " << index << " " << temp << endl;
+		pset->add(temp);
+		out << "add " << temp << endl;
 	}
 	void find() {
 		in >> temp;
-		out << "find " << temp << " " << plist->find(temp) << endl;
+		out << "find " << temp << " " << pset->find(temp) << endl;
 	}
 	void remove() {
-		in >> index;
-		out << "remove " << index << " " <<plist->remove(index) << endl;
+		in >> temp;
+		pset->remove(temp);
+		out << "remove " << index << endl;
 	}
 	void print() {
-		out << "print" << endl << plist->print();
+		out << "print" << endl << pset->print();
 	}
 };
 #endif
