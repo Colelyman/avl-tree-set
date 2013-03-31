@@ -60,15 +60,40 @@ public:
 		else
 			return false;
 	}
+	Node* insert(Node* n, const ItemType& item) {
+		if(n == NULL)
+			return new Node(item);
+		else if(item < n->item)
+			n->left = insert(n->left, item);
+		else if(item > n->item)
+			n->right = insert(n->right, item);
+		return n;
+	}
 	void add(const ItemType& item) {
-
+		if(find(item))
+			return;
+		Node* n = insert(find(root, item), item);
+		size++;
 	}
 	void remove(const ItemType& item) {
+		if(find(item))
+			return;
 
 	}
 	bool find(const ItemType& item) {
-
-		return false;
+		Node* n = find(root, item);
+		if(n->item == item)
+			return true;
+		else
+			return false;
+	}
+	Node* find(Node* n, const ItemType& item) {
+		if(n == NULL || n->item == item)
+			return n;
+		else if(item < n->item)
+			return find(n->left, item);
+		else
+			return find(n->right, item);
 	}
 	string printLevel(Node* n, int level) {
 		stringstream s;
