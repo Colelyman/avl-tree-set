@@ -1,5 +1,6 @@
 #ifndef AVL_H
 #define AVL_H
+#include "queue.h"
 #include <string>
 #include <sstream>
 
@@ -19,7 +20,7 @@ private:
 		Node() {
 			left = NULL;
 			right = NULL;
-			height = 0;
+			height = 1;
 		}
 
 		Node(Node* n) {
@@ -38,6 +39,7 @@ private:
 	};
 	Node* root;
 	int size;
+	queue<ItemType> q;
 public:
 	set() {
 		root = new Node();
@@ -45,6 +47,18 @@ public:
 	}
 	~set() {
 
+	}
+	bool checkHeight(Node* n, Node* n2) { // returning true means the subtree is out of balance
+		if(n->height > (n2->height + 1))
+			return true; 
+		else if((n->height + 1) > n2->height)
+			return true;
+		else if(n->height < (n2->height - 1))
+			return true;
+		else if((n->height - 1) < n2->height)
+			return true;
+		else
+			return false;
 	}
 	void add(const ItemType& item) {
 
