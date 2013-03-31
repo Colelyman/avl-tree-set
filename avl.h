@@ -70,9 +70,24 @@ public:
 
 		return false;
 	}
+	string printLevel(Node* n, int level) {
+		stringstream s;
+		if(n == NULL)
+			return s.str();
+		if(level == 1)
+			s << n->item << "(" << n->height << ") ";
+		else {
+			printLevel(n->left, level - 1);
+			printLevel(n->right, level -1);
+		}
+		return s.str();
+	}
 	string print() {
+		stringstream s;
+		for(int i = 1; i <= root->height; i++)
+			s << "level " << i - 1 << ": " << printLevel(root, i);
 
-		return "";
+		return s.str();
 	}
 };
 #endif
