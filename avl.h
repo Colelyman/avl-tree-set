@@ -3,10 +3,14 @@
 #include "queue.h"
 #include <string>
 #include <sstream>
+#include <algorithm>
+#include <iostream>
 
 using std::string;
 using std::stringstream;
 using std::endl;
+using std::max;
+using std::cout;
 
 template<typename ItemType>
 class set {
@@ -30,32 +34,36 @@ private:
 			height = n->height;
 		}
 
-		Node(ItemType item) {
+		Node(const ItemType& item) {
 			this->item = item;
 			left = NULL;
 			right = NULL;
-			height = 0;
+			height = 1;
 		}
 	};
 	Node* root;
 	int size;
-	queue<ItemType> q;
+	queue<Node*> q;
 public:
 	set() {
-		root = new Node();
 		size = 0;
 	}
 	~set() {
 
 	}
+	int height(Node* n) {
+		if(n == NULL)
+			return 0;
+		return n->height;
+	}
 	bool checkHeight(Node* n, Node* n2) { // returning true means the subtree is out of balance
-		if(n->height > (n2->height + 1))
+		if(height(n) > (height(n2) + 1))
 			return true; 
-		else if((n->height + 1) > n2->height)
+		else if((height(n) + 1) > height(n2))
 			return true;
-		else if(n->height < (n2->height - 1))
+		else if(height(n) < (height(n2) - 1))
 			return true;
-		else if((n->height - 1) < n2->height)
+		else if((height(n) - 1) < height(n2))
 			return true;
 		else
 			return false;
@@ -67,12 +75,18 @@ public:
 			n->left = insert(n->left, item);
 		else if(item > n->item)
 			n->right = insert(n->right, item);
+
+		n->height = max(height(n->left), height(n->right)) + 1;
 		return n;
 	}
 	void add(const ItemType& item) {
-		if(find(item))
+		if(root == NULL || size == 0) 
+			root = new Node(item);
+		else if(find(item))
 			return;
-		Node* n = insert(find(root, item), item);
+		else {
+			insert(root, item);
+		}
 		size++;
 	}
 	void remove(const ItemType& item) {
@@ -82,7 +96,9 @@ public:
 	}
 	bool find(const ItemType& item) {
 		Node* n = find(root, item);
-		if(n->item == item)
+		if(n == NULL)
+			return false;
+		else if(n->item == item)
 			return true;
 		else
 			return false;
@@ -95,23 +111,32 @@ public:
 		else
 			return find(n->right, item);
 	}
-	string printLevel(Node* n, int level) {
-		stringstream s;
-		if(n == NULL)
-			return s.str();
-		if(level == 1)
-			s << n->item << "(" << n->height << ") ";
-		else {
-			printLevel(n->left, level - 1);
-			printLevel(n->right, level -1);
-		}
-		return s.str();
-	}
 	string print() {
 		stringstream s;
-		for(int i = 1; i <= root->height; i++)
-			s << "level " << i - 1 << ": " << printLevel(root, i);
-
+		Node* sentinal = new Node();
+		
+		q.push(root);
+		q.push(sentinal);
+		
+		queue<Node*> q2;
+		int level = 0;
+		s << "level " << level << ": ";
+		level++;
+		while(!q.empty()) {
+			Node* n = q.pop();
+			if(n == sentinal && !q.empty()) {
+				q.push(sentinal);
+				s << endl << "level " << level << ": ";
+				level++;
+			}
+			if(n != sentinal)
+				s << n->item << "(" << n->height << ") "; 
+			if(n->left != NULL)
+				q.push(n->left);
+			if(n->right != NULL)
+				q.push(n->right);
+		}
+		s << endl;
 		return s.str();
 	}
 };

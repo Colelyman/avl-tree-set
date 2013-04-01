@@ -1,12 +1,6 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 #include <cstddef>
-#include <string>
-#include <iostream>
-
-using std::string;
-using std::endl;
-using std::cout;
 
 template<typename ItemType>
 class queue {
@@ -37,10 +31,17 @@ public:
 		size = 0;
 	}
 	~queue() {
+		Node* n = head->next;
+		Node* temp;
+		while(n != tail) {
+			temp = n->next;
+			delete n;
+			n = temp;
+		}
 		delete head;
 		delete tail;
 	}
-	void push_back(const ItemType& item) {
+	void push(const ItemType& item) {
 		Node* n = new Node(item);
 		n->next = tail;
 		n->prev = tail->prev;
@@ -48,7 +49,7 @@ public:
 		tail->prev = n;
 		size++;
 	}
-	ItemType pop_front() {
+	ItemType pop() {
 		ItemType temp = head->next->item;
 		Node* n = head->next;
 		head->next = head->next->next;
@@ -57,8 +58,11 @@ public:
 		size--;
 		return temp;
 	}
-	int getSize() {
-		return size;
+	bool empty() {
+		if(size == 0)
+			return true;
+		else
+			return false;
 	}
 };
 #endif
