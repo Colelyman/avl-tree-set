@@ -56,17 +56,46 @@ public:
 			return 0;
 		return n->height;
 	}
-	bool checkHeight(Node* n, Node* n2) { // returning true means the subtree is out of balance
-		if(height(n) > (height(n2) + 1))
-			return true; 
-		else if((height(n) + 1) > height(n2))
-			return true;
-		else if(height(n) < (height(n2) - 1))
-			return true;
-		else if((height(n) - 1) < height(n2))
-			return true;
+	void balance(Node* parent, Node* n) {
+		if(parent == n)
+			return;
+		else if(n->item < parent->item)
+			balance(parent->left, n);
 		else
-			return false;
+			balance(parent->right, n);
+
+		if(height(parent->left) - height(parent->right) > 1)
+			rightBalance(parent);
+		else if(height(parent->left) - height(parent->right) < 1)
+			leftBalance(parent);
+	}
+	void rightBalance(Node* n) {
+		if(height(n->left->right) > height(n->left->left))
+			n->left = singleRotateRight(n->left);
+		n->left = singleRotateRight(n->left);
+	}
+	Node* singleRotateRight(Node* n) {
+		Node* k = n->left;
+		n->left = k->right;
+		k->right = n;
+
+		n->height = max(height(n->left), height(n->right)) + 1;
+		k->height = max(height(k->left), height(k->right)) + 1;
+		return k;
+	}
+	void leftBalance(Node* n) {
+		if(height(n->right->left) > height(n->right->right))
+			n->right = singleRotateLeft(n->right);
+		n->right = singleRotateLeft(n->right);
+	}
+	Node* singleRotateLeft(Node* n) {
+		Node* k = n->right;
+		n->right = k->left;
+		k->left = n;
+
+		n->height = max(height(n->left), height(n->right)) + 1;
+		k->height = max(height(k->left), height(k->right)) + 1;
+		return k;
 	}
 	Node* insert(Node* n, const ItemType& item) {
 		if(n == NULL)
@@ -85,7 +114,8 @@ public:
 		else if(find(item))
 			return;
 		else {
-			insert(root, item);
+			Node* n = insert(root, item);
+			balance(root, n);
 		}
 		size++;
 	}
