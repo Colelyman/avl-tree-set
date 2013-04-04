@@ -56,22 +56,26 @@ public:
 			return 0;
 		return n->height;
 	}
-	void balance(Node*& parent, const ItemType& item) {
-		if(parent->item == item)
+	void balance(Node*& parent, const ItemType& item, bool balanced) {
+		if(parent->item == item || balanced)
 			return;
 		else if(item < parent->item)
-			balance(parent->left, item);
+			balance(parent->left, item, balanced);
 		else
-			balance(parent->right, item);
+			balance(parent->right, item, balanced);
 		cout << "parent->item " << parent->item << endl;
-		if(height(parent->left) - height(parent->right) > 1)
+		if(height(parent->left) - height(parent->right) > 1) {
 			parent = rightBalance(parent);
-		else if(height(parent->right) - height(parent->left) > 1)
+			balanced = true;
+		}
+		else if(height(parent->right) - height(parent->left) > 1) {
 			parent = leftBalance(parent);
+			balanced = true;
+		}
 	}
 	Node* rightBalance(Node* n) {
 		if(height(n->left->right) > height(n->left->left))
-			n = singleRotateRight(n);
+			n->left = singleRotateLeft(n->left);
 		n = singleRotateRight(n);
 		return n;
 	}
@@ -85,10 +89,8 @@ public:
 		return k;
 	}
 	Node* leftBalance(Node* n) {
-		cout << "n->item: " << n->item << endl;
 		if(height(n->right->left) > height(n->right->right))
-			n = singleRotateLeft(n);
-		cout << "n->item: " << n->item << endl;
+			n->right = singleRotateRight(n->right);
 		n = singleRotateLeft(n);
 		return n;
 	}
@@ -101,7 +103,7 @@ public:
 		k->height = max(height(k->left), height(k->right)) + 1;
 		return k;
 	}
-	Node* insert(Node* n, const ItemType& item) {
+	Node* insert(Node*& n, const ItemType& item) {
 		if(n == NULL)
 			return new Node(item);
 		else if(item < n->item) {
@@ -120,10 +122,9 @@ public:
 		else if(find(item))
 			return;
 		else {
-			Node* n = insert(root, item);
-			cout << "\tn->item in add(): " << n->item << endl;
-			balance(root, item);
-			cout << "n->item" << n->item << endl;
+			cout << "insert: " << item << endl;
+			insert(root, item);
+			balance(root, item, false);
 		}
 		size++;
 	}
