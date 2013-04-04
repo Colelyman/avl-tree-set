@@ -56,23 +56,24 @@ public:
 			return 0;
 		return n->height;
 	}
-	void balance(Node* parent, Node* n) {
-		if(parent == n)
+	void balance(Node*& parent, const ItemType& item) {
+		if(parent->item == item)
 			return;
-		else if(n->item < parent->item)
-			balance(parent->left, n);
+		else if(item < parent->item)
+			balance(parent->left, item);
 		else
-			balance(parent->right, n);
-
+			balance(parent->right, item);
+		cout << "parent->item " << parent->item << endl;
 		if(height(parent->left) - height(parent->right) > 1)
-			rightBalance(parent);
-		else if(height(parent->left) - height(parent->right) < 1)
-			leftBalance(parent);
+			parent = rightBalance(parent);
+		else if(height(parent->right) - height(parent->left) > 1)
+			parent = leftBalance(parent);
 	}
-	void rightBalance(Node* n) {
+	Node* rightBalance(Node* n) {
 		if(height(n->left->right) > height(n->left->left))
-			n->left = singleRotateRight(n->left);
-		n->left = singleRotateRight(n->left);
+			n = singleRotateRight(n);
+		n = singleRotateRight(n);
+		return n;
 	}
 	Node* singleRotateRight(Node* n) {
 		Node* k = n->left;
@@ -83,10 +84,13 @@ public:
 		k->height = max(height(k->left), height(k->right)) + 1;
 		return k;
 	}
-	void leftBalance(Node* n) {
+	Node* leftBalance(Node* n) {
+		cout << "n->item: " << n->item << endl;
 		if(height(n->right->left) > height(n->right->right))
-			n->right = singleRotateLeft(n->right);
-		n->right = singleRotateLeft(n->right);
+			n = singleRotateLeft(n);
+		cout << "n->item: " << n->item << endl;
+		n = singleRotateLeft(n);
+		return n;
 	}
 	Node* singleRotateLeft(Node* n) {
 		Node* k = n->right;
@@ -100,22 +104,26 @@ public:
 	Node* insert(Node* n, const ItemType& item) {
 		if(n == NULL)
 			return new Node(item);
-		else if(item < n->item)
+		else if(item < n->item) {
 			n->left = insert(n->left, item);
-		else if(item > n->item)
+		}
+		else if(item > n->item) {
 			n->right = insert(n->right, item);
+		}
 
 		n->height = max(height(n->left), height(n->right)) + 1;
 		return n;
 	}
 	void add(const ItemType& item) {
-		if(root == NULL || size == 0) 
+		if(size == 0)
 			root = new Node(item);
 		else if(find(item))
 			return;
 		else {
 			Node* n = insert(root, item);
-			balance(root, n);
+			cout << "\tn->item in add(): " << n->item << endl;
+			balance(root, item);
+			cout << "n->item" << n->item << endl;
 		}
 		size++;
 	}
@@ -148,7 +156,6 @@ public:
 		q.push(root);
 		q.push(sentinal);
 		
-		queue<Node*> q2;
 		int level = 0;
 		s << "level " << level << ": ";
 		level++;
@@ -160,7 +167,7 @@ public:
 				level++;
 			}
 			if(n != sentinal)
-				s << n->item << "(" << n->height << ") "; 
+				s << n->item << "(" << height(n) << ") "; 
 			if(n->left != NULL)
 				q.push(n->left);
 			if(n->right != NULL)
