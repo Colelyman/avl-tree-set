@@ -63,7 +63,7 @@ public:
 			balance(parent->left, item);
 		else
 			balance(parent->right, item);
-		cout << "parent->item " << parent->item << endl;
+
 		if(height(parent->left) - height(parent->right) > 1) {
 			parent = rightBalance(parent);
 		}
@@ -110,9 +110,9 @@ public:
 		else if(item > n->item) {
 			n->right = insert(n->right, item);
 		}
+
 		balance(n, item);
 		n->height = max(height(n->left), height(n->right)) + 1;
-		cout << "2. n->item: " << n->item << endl;
 		return n;
 	}
 	void add(const ItemType& item) {
@@ -120,11 +120,8 @@ public:
 			root = new Node(item);
 		else if(find(item))
 			return;
-		else {
-			cout << "insert: " << item << endl;
+		else
 			root = insert(root, item);
-//			balance(root, item, false);
-		}
 		size++;
 	}
 	void remove(const ItemType& item) {
@@ -157,6 +154,7 @@ public:
 		q.push(sentinal);
 		
 		int level = 0;
+		int count = 1;
 		s << "level " << level << ": ";
 		level++;
 		while(!q.empty()) {
@@ -165,9 +163,14 @@ public:
 				q.push(sentinal);
 				s << endl << "level " << level << ": ";
 				level++;
+				count = 1;
 			}
-			if(n != sentinal)
+			if(n != sentinal) {
 				s << n->item << "(" << height(n) << ") "; 
+				count++;
+			}
+			if(count % 9 == 0 && q.top() != sentinal && !q.empty())
+				s << endl << "level " << level - 1 << ": ";
 			if(n->left != NULL)
 				q.push(n->left);
 			if(n->right != NULL)

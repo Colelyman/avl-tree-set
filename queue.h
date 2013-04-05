@@ -58,6 +58,9 @@ public:
 		size--;
 		return temp;
 	}
+	ItemType top() {
+		return head->next->item;
+	}
 	bool empty() {
 		if(size == 0)
 			return true;
