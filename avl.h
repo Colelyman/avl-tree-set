@@ -56,21 +56,19 @@ public:
 			return 0;
 		return n->height;
 	}
-	void balance(Node*& parent, const ItemType& item, bool balanced) {
-		if(parent->item == item || balanced)
+	void balance(Node*& parent, const ItemType& item) {
+		if(parent->item == item)
 			return;
 		else if(item < parent->item)
-			balance(parent->left, item, balanced);
+			balance(parent->left, item);
 		else
-			balance(parent->right, item, balanced);
+			balance(parent->right, item);
 		cout << "parent->item " << parent->item << endl;
 		if(height(parent->left) - height(parent->right) > 1) {
 			parent = rightBalance(parent);
-			balanced = true;
 		}
 		else if(height(parent->right) - height(parent->left) > 1) {
 			parent = leftBalance(parent);
-			balanced = true;
 		}
 	}
 	Node* rightBalance(Node* n) {
@@ -103,7 +101,7 @@ public:
 		k->height = max(height(k->left), height(k->right)) + 1;
 		return k;
 	}
-	Node* insert(Node*& n, const ItemType& item) {
+	Node* insert(Node* n, const ItemType& item) {
 		if(n == NULL)
 			return new Node(item);
 		else if(item < n->item) {
@@ -112,8 +110,9 @@ public:
 		else if(item > n->item) {
 			n->right = insert(n->right, item);
 		}
-
+		balance(n, item);
 		n->height = max(height(n->left), height(n->right)) + 1;
+		cout << "2. n->item: " << n->item << endl;
 		return n;
 	}
 	void add(const ItemType& item) {
@@ -123,8 +122,8 @@ public:
 			return;
 		else {
 			cout << "insert: " << item << endl;
-			insert(root, item);
-			balance(root, item, false);
+			root = insert(root, item);
+//			balance(root, item, false);
 		}
 		size++;
 	}
