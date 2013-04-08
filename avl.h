@@ -124,10 +124,77 @@ public:
 			root = insert(root, item);
 		size++;
 	}
-	void remove(const ItemType& item) {
-		if(find(item))
-			return;
+	Node* smallest(Node* n, const ItemType& small) const {
+		if(n->left == NULL) {
+			cout << "smallest: " << n->item << endl;
+			return n;
+		}
+		if(n->left->item < small)
+			n = smallest(n->left, n->left->item);
+		return n;
+	}
+	Node* ctr(Node* n) { // ctr = choose the right
+		cout << "enter ctr with: " << n->item << endl;
+		if(n->left == NULL && n->right == NULL)
+			return n;
+		else if(n->left == NULL && n->right != NULL)
+			return n->right;
+		else if(n->right == NULL && n->left != NULL)
+			return n->left;
+		else {
+			cout << "using smallest" << endl;
+			Node* temp = n->left;
+			n = smallest(n->right, n->item);
+			n->left = temp;
+			return n;
+		}
+	}
+	Node* helpRemove(Node* n, Node* prev) {
+		Node* temp = n;
+		if(n->right == NULL && n->left == NULL) {
+			temp = prev;
+			if(temp->left == n)
+				temp->left = NULL;
+			else
+				temp->right = NULL;
+			cout << "exit if(item == n->item)" << endl;
+		}
+		else if(n->left == NULL) {
+			temp = n->right;
+		}
+		else if(n->right == NULL) {
+			temp = n->left;
+		}
+		else {
+			temp = ctr(n);
+			temp->left = n->left;
+			cout << "remove: " << n->item << endl;
+			cout << "n->item: " << temp->item << endl;
+		}
+//		balance(temp, temp->item);
+		temp->height = max(height(temp->left), height(temp->right)) + 1;
+		delete n;
 
+		return temp;
+	}
+	Node* remove(Node* n, Node* prev, const ItemType& item) {
+		if(item == n->item) {
+			return helpRemove(n, prev);
+		}
+		else if(item < n->item)
+			n->left = remove(n->left, n, item);
+		else if(item > n->item)
+			n->right = remove(n->right, n, item);
+
+		return n;
+	}
+	void remove(const ItemType& item) {
+		if(!find(item))
+			return;
+		else
+			root = remove(root, root, item);
+		cout << "after remove(root, root, item)" << endl;
+		size--;
 	}
 	bool find(const ItemType& item) {
 		Node* n = find(root, item);
@@ -147,9 +214,11 @@ public:
 			return find(n->right, item);
 	}
 	string print() {
+		if(size == 0)
+			return "level 0:\n";
 		stringstream s;
 		Node* sentinal = new Node();
-		
+
 		q.push(root);
 		q.push(sentinal);
 		
@@ -177,6 +246,8 @@ public:
 				q.push(n->right);
 		}
 		s << endl;
+
+		delete sentinal;
 		return s.str();
 	}
 };
