@@ -27,7 +27,7 @@ private:
 			height = 1;
 		}
 
-		Node(Node* n) {
+		Node(const Node* n) {
 			item = n->item;
 			left = n->left;
 			right = n->right;
@@ -42,14 +42,17 @@ private:
 		}
 	};
 	Node* root;
+	Node* sentinal;
 	int size;
 	queue<Node*> q;
 public:
 	set() {
 		size = 0;
+		sentinal = new Node();
 	}
 	~set() {
 
+		delete sentinal;
 	}
 	int height(Node* n) {
 		if(n == NULL)
@@ -133,58 +136,39 @@ public:
 			n = smallest(n->left, n->left->item);
 		return n;
 	}
-	Node* ctr(Node* n) { // ctr = choose the right
-		cout << "enter ctr with: " << n->item << endl;
-		if(n->left == NULL && n->right == NULL)
-			return n;
-		else if(n->left == NULL && n->right != NULL)
-			return n->right;
-		else if(n->right == NULL && n->left != NULL)
-			return n->left;
-		else {
-			cout << "using smallest" << endl;
-			Node* temp = n->left;
-			n = smallest(n->right, n->item);
-			n->left = temp;
-			return n;
-		}
-	}
-	Node* helpRemove(Node* n, Node* prev) {
+	Node* helpRemove(Node*& n, Node* prev) {
 		Node* temp = n;
-		if(n->right == NULL && n->left == NULL) {
-			temp = prev;
-			if(temp->left == n)
-				temp->left = NULL;
-			else
-				temp->right = NULL;
-			cout << "exit if(item == n->item)" << endl;
-		}
-		else if(n->left == NULL) {
+		if(n->left == NULL) {
 			temp = n->right;
+			delete n;
+			n = temp;
 		}
 		else if(n->right == NULL) {
 			temp = n->left;
+			delete n;
+			n = temp;
 		}
 		else {
-			temp = ctr(n);
+			temp = smallest(n->right, n->item);
 			temp->left = n->left;
 			cout << "remove: " << n->item << endl;
 			cout << "n->item: " << temp->item << endl;
 		}
-//		balance(temp, temp->item);
-		temp->height = max(height(temp->left), height(temp->right)) + 1;
-		delete n;
 
 		return temp;
 	}
-	Node* remove(Node* n, Node* prev, const ItemType& item) {
+	Node* remove(Node*& n, Node* prev, const ItemType& item) {
 		if(item == n->item) {
-			return helpRemove(n, prev);
+			cout << "helpRemove(" << n->item << ", " << prev->item << ")" << endl;
+			n = helpRemove(n, prev);
 		}
 		else if(item < n->item)
 			n->left = remove(n->left, n, item);
 		else if(item > n->item)
 			n->right = remove(n->right, n, item);
+
+//		n->height = max(height(n->left), height(n->right)) + 1;
+//		balance(root, n->item);
 
 		return n;
 	}
@@ -217,7 +201,7 @@ public:
 		if(size == 0)
 			return "level 0:\n";
 		stringstream s;
-		Node* sentinal = new Node();
+		cout << "enter print()" << endl;
 
 		q.push(root);
 		q.push(sentinal);
@@ -247,7 +231,6 @@ public:
 		}
 		s << endl;
 
-		delete sentinal;
 		return s.str();
 	}
 };
