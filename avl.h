@@ -51,6 +51,8 @@ public:
 		sentinal = new Node();
 	}
 	~set() {
+		while(size > 0)
+			remove(root->item);
 
 		delete sentinal;
 	}
@@ -58,6 +60,17 @@ public:
 		if(n == NULL)
 			return 0;
 		return n->height;
+	}
+	void balance(Node*& n) {
+		if(n == NULL)
+			return;
+		balance(n->left);
+		balance(n->right);
+
+		if(height(n->left) - height(n->right) > 1) 
+			n = rightBalance(n);
+		else if(height(n->right) - height(n->left) > 1)
+			n = leftBalance(n);
 	}
 	void balance(Node*& parent, const ItemType& item) {
 		if(parent->item == item)
@@ -128,7 +141,6 @@ public:
 		size++;
 	}
 	Node* smallest(Node* n, const ItemType& small) const {
-		cout << "smallest: " << n->item << endl;
 		if(n->left == NULL)
 			return n;
 		if(n->left->item < small)
@@ -152,7 +164,6 @@ public:
 		else {
 			temp = smallest(n->right, n->item);
 			temp->left = n->left;
-			cout << "temp->left: " << temp->left->item << endl;
 			if(temp->item != n->right->item)
 				temp->right = n->right;
 			delete n;
@@ -162,17 +173,18 @@ public:
 		return temp;
 	}
 	Node* remove(Node*& n, Node* prev, const ItemType& item) {
-		if(item == n->item)
+		if(item == n->item) {
 			n = helpRemove(n, prev);
+			if(n != NULL) {
+				n->height = max(height(n->left), height(n->right)) + 1;
+				balance(root, n->item);
+			}
+		}
 		else if(item < n->item)
 			n->left = remove(n->left, n, item);
 		else if(item > n->item)
 			n->right = remove(n->right, n, item);
 
-		if(n != NULL) {
-			n->height = max(height(n->left), height(n->right)) + 1;
-			balance(root, n->item);
-		}
 
 		return n;
 	}
@@ -180,7 +192,8 @@ public:
 		if(!find(item))
 			return;
 		else
-			root = remove(root, root, item);
+			remove(root, root, item);
+		balance(root);
 		size--;
 	}
 	bool find(const ItemType& item) {
