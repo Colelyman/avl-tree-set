@@ -4,13 +4,11 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
-#include <iostream>
 
 using std::string;
 using std::stringstream;
 using std::endl;
 using std::max;
-using std::cout;
 
 template<typename ItemType>
 class set {
@@ -128,13 +126,13 @@ public:
 		size++;
 	}
 	Node* smallest(Node* n, const ItemType& small) const {
-		if(n->left == NULL) {
-			cout << "smallest: " << n->item << endl;
+		if(n->left == NULL)
 			return n;
-		}
 		if(n->left->item < small)
 			n = smallest(n->left, n->left->item);
-		return n;
+		Node* temp = n->left;
+		n->left = NULL;
+		return temp;
 	}
 	Node* helpRemove(Node*& n, Node* prev) {
 		Node* temp = n;
@@ -151,24 +149,25 @@ public:
 		else {
 			temp = smallest(n->right, n->item);
 			temp->left = n->left;
-			cout << "remove: " << n->item << endl;
-			cout << "n->item: " << temp->item << endl;
+			temp->right = n->right;
+			delete n;
+			n = temp;
 		}
 
 		return temp;
 	}
 	Node* remove(Node*& n, Node* prev, const ItemType& item) {
-		if(item == n->item) {
-			cout << "helpRemove(" << n->item << ", " << prev->item << ")" << endl;
+		if(item == n->item)
 			n = helpRemove(n, prev);
-		}
 		else if(item < n->item)
 			n->left = remove(n->left, n, item);
 		else if(item > n->item)
 			n->right = remove(n->right, n, item);
 
-//		n->height = max(height(n->left), height(n->right)) + 1;
-//		balance(root, n->item);
+		if(n != NULL) {
+			n->height = max(height(n->left), height(n->right)) + 1;
+			balance(root, n->item);
+		}
 
 		return n;
 	}
@@ -177,7 +176,6 @@ public:
 			return;
 		else
 			root = remove(root, root, item);
-		cout << "after remove(root, root, item)" << endl;
 		size--;
 	}
 	bool find(const ItemType& item) {
@@ -201,7 +199,6 @@ public:
 		if(size == 0)
 			return "level 0:\n";
 		stringstream s;
-		cout << "enter print()" << endl;
 
 		q.push(root);
 		q.push(sentinal);
