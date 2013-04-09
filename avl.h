@@ -4,11 +4,13 @@
 #include <string>
 #include <sstream>
 #include <algorithm>
+#include <iostream>
 
 using std::string;
 using std::stringstream;
 using std::endl;
 using std::max;
+using std::cout;
 
 template<typename ItemType>
 class set {
@@ -126,6 +128,7 @@ public:
 		size++;
 	}
 	Node* smallest(Node* n, const ItemType& small) const {
+		cout << "smallest: " << n->item << endl;
 		if(n->left == NULL)
 			return n;
 		if(n->left->item < small)
@@ -149,7 +152,9 @@ public:
 		else {
 			temp = smallest(n->right, n->item);
 			temp->left = n->left;
-			temp->right = n->right;
+			cout << "temp->left: " << temp->left->item << endl;
+			if(temp->item != n->right->item)
+				temp->right = n->right;
 			delete n;
 			n = temp;
 		}
