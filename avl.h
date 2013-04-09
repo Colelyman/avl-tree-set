@@ -194,6 +194,8 @@ public:
 		else
 			remove(root, root, item);
 		balance(root);
+		if(root != NULL)
+			root->height = max(height(root->left), height(root->right)) + 1;
 		size--;
 	}
 	bool find(const ItemType& item) {
@@ -237,7 +239,7 @@ public:
 				s << n->item << "(" << height(n) << ") "; 
 				count++;
 			}
-			if(count % 9 == 0 && q.top() != sentinal && !q.empty())
+			if(count % 9 == 0 && q.top() != sentinal)
 				s << endl << "level " << level - 1 << ": ";
 			if(n->left != NULL)
 				q.push(n->left);
