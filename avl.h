@@ -140,13 +140,14 @@ public:
 			root = insert(root, item);
 		size++;
 	}
-	Node* smallest(Node* n, const ItemType& small) const {
+	Node* smallest(Node* n, const ItemType& small) {
 		if(n->left == NULL)
 			return n;
 		if(n->left->item < small)
 			n = smallest(n->left, n->left->item);
 		Node* temp = n->left;
 		n->left = NULL;
+		n->height = max(height(n->left), height(n->right)) + 1;
 		return temp;
 	}
 	Node* helpRemove(Node*& n, Node* prev) {
