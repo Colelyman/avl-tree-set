@@ -175,16 +175,16 @@ public:
 	Node* remove(Node*& n, Node* prev, const ItemType& item) {
 		if(item == n->item) {
 			n = helpRemove(n, prev);
-			if(n != NULL) {
-				n->height = max(height(n->left), height(n->right)) + 1;
-				balance(root, n->item);
-			}
 		}
 		else if(item < n->item)
 			n->left = remove(n->left, n, item);
 		else if(item > n->item)
 			n->right = remove(n->right, n, item);
 
+		if(n != NULL) {
+			n->height = max(height(n->left), height(n->right)) + 1;
+			balance(root, n->item);
+		}
 
 		return n;
 	}
@@ -217,7 +217,7 @@ public:
 	}
 	string print() {
 		if(size == 0)
-			return "level 0:\n";
+			return "";
 		stringstream s;
 
 		q.push(root);
