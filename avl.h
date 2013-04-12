@@ -98,8 +98,8 @@ public:
 		n->left = k->right;
 		k->right = n;
 
-		n->height = max(height(n->left), height(n->right)) + 1;
 		k->height = max(height(k->left), height(k->right)) + 1;
+		n->height = max(height(n->left), height(n->right)) + 1;
 		return k;
 	}
 	Node* leftBalance(Node* n) {
@@ -113,8 +113,8 @@ public:
 		n->right = k->left;
 		k->left = n;
 
-		n->height = max(height(n->left), height(n->right)) + 1;
 		k->height = max(height(k->left), height(k->right)) + 1;
+		n->height = max(height(n->left), height(n->right)) + 1;
 		return k;
 	}
 	Node* insert(Node* n, const ItemType& item) {
@@ -140,17 +140,14 @@ public:
 			root = insert(root, item);
 		size++;
 	}
-	Node* smallest(Node* n, const ItemType& small) {
+	Node* smallest(Node* n) {
 		if(n->left == NULL)
 			return n;
-		if(n->left->item < small)
-			n = smallest(n->left, n->left->item);
-		Node* temp = n->left;
-		n->left = NULL;
-		n->height = max(height(n->left), height(n->right)) + 1;
-		return temp;
+		n = smallest(n->left);
+
+		return n;
 	}
-	Node* helpRemove(Node*& n, Node* prev) {
+	Node* helpRemove(Node*& n) {
 		Node* temp = n;
 		if(n->left == NULL) {
 			temp = n->right;
@@ -163,24 +160,23 @@ public:
 			n = temp;
 		}
 		else {
-			temp = smallest(n->right, n->item);
-			temp->left = n->left;
-			if(temp->item != n->right->item)
-				temp->right = n->right;
-			delete n;
-			n = temp;
+			Node* small = smallest(n->right);
+			n->item = small->item;
+			if(n->right != NULL)
+				remove(n->right, small->item);
 		}
-
-		return temp;
+		return n;
 	}
-	Node* remove(Node*& n, Node* prev, const ItemType& item) {
+	Node* remove(Node*& n, const ItemType& item) {
+		if(n == NULL)
+			return n;
 		if(item == n->item) {
-			n = helpRemove(n, prev);
+			n = helpRemove(n);
 		}
 		else if(item < n->item)
-			n->left = remove(n->left, n, item);
+			n->left = remove(n->left, item);
 		else if(item > n->item)
-			n->right = remove(n->right, n, item);
+			n->right = remove(n->right, item);
 
 		if(n != NULL) {
 			n->height = max(height(n->left), height(n->right)) + 1;
@@ -193,7 +189,7 @@ public:
 		if(!find(item))
 			return;
 		else
-			remove(root, root, item);
+			remove(root, item);
 		balance(root);
 		if(root != NULL)
 			root->height = max(height(root->left), height(root->right)) + 1;
@@ -225,7 +221,7 @@ public:
 		q.push(sentinal);
 		
 		int level = 0;
-		int count = 1;
+		int count = 0;
 		s << "level " << level << ": ";
 		level++;
 		while(!q.empty()) {
@@ -234,14 +230,16 @@ public:
 				q.push(sentinal);
 				s << endl << "level " << level << ": ";
 				level++;
-				count = 1;
+				count = 0;
+			}
+			if(count == 8 && n != sentinal) {
+				s << endl << "level " << level - 1 << ": ";
+				count = 0;
 			}
 			if(n != sentinal) {
 				s << n->item << "(" << height(n) << ") "; 
 				count++;
 			}
-			if(count % 9 == 0 && q.top() != sentinal)
-				s << endl << "level " << level - 1 << ": ";
 			if(n->left != NULL)
 				q.push(n->left);
 			if(n->right != NULL)
